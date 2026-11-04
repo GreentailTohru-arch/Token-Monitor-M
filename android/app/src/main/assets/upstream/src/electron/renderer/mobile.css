@@ -1,0 +1,254 @@
+/* Android sizing only. Original views, theme and business controls remain. */
+html.token-monitor-mobile, html.token-monitor-mobile body {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: rgb(var(--glass-rgb));
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+.token-monitor-mobile .shell {
+  box-sizing: border-box;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 12px 16px;
+  box-shadow: none !important;
+}
+.token-monitor-mobile .window-actions,
+.token-monitor-mobile .actions-hotspot,
+.token-monitor-mobile #minBtn,
+.token-monitor-mobile .dash-header-actions #themeToggle { display: none !important; }
+.token-monitor-mobile .titlebar { min-height: 42px; flex-shrink: 0; -webkit-app-region: no-drag; }
+.token-monitor-mobile .footer { min-height: 42px; flex-shrink: 0; }
+.token-monitor-mobile .icon-button { min-width: 36px; min-height: 36px; }
+.token-monitor-mobile .view-switcher-toggle,
+.token-monitor-mobile .view-switcher-menu-item { min-height: 40px; }
+.token-monitor-mobile .home-panel,
+.token-monitor-mobile .breakdown,
+.token-monitor-mobile .limits-panel,
+.token-monitor-mobile .session-detail { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.token-monitor-mobile .dash-pane { overflow: auto; }
+.token-monitor-mobile .dash-header { flex-shrink: 0; }
+.token-monitor-mobile .dash-controls { flex-wrap: wrap; }
+/* Eight dashboard stats share a two- or four-column grid with internal dividers. */
+.token-monitor-mobile .dash-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+}
+.token-monitor-mobile .dash-card { border: 0; }
+.token-monitor-mobile .dash-card:not(:nth-child(2n)) {
+  border-inline-end: 1px solid rgba(var(--overlay-rgb), 0.08);
+}
+.token-monitor-mobile .dash-card:not(:nth-last-child(-n + 2)) {
+  border-bottom: 1px solid rgba(var(--overlay-rgb), 0.08);
+}
+@media (orientation: landscape) {
+  .token-monitor-mobile .dash-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .token-monitor-mobile .dash-card:not(:nth-child(2n)) { border-inline-end: 0; }
+  .token-monitor-mobile .dash-card:not(:nth-child(4n)) {
+    border-inline-end: 1px solid rgba(var(--overlay-rgb), 0.08);
+  }
+  .token-monitor-mobile .dash-card:nth-last-child(-n + 4) { border-bottom: 0; }
+}
+.token-monitor-mobile .dash-card-v,
+.token-monitor-mobile .dash-card-k {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.token-monitor-mobile .dash-breakdown-col { min-width: 0; }
+.token-monitor-mobile .dash-bd-name { flex: 0 1 110px; min-width: 0; }
+.token-monitor-mobile .dash-bd-bar-bg { min-width: 0; }
+.token-monitor-mobile .dash-chart-wrap { min-height: 150px; }
+.token-monitor-mobile .trends-panel { overflow-y: auto; }
+.token-monitor-mobile .trends-spark { min-height: 118px; }
+.token-monitor-mobile .view-switcher-menu { max-height: min(65vh, 480px); overflow-y: auto; }
+.token-monitor-mobile[data-mobile-connected="false"] .live-dot {
+  background: #5b6471 !important;
+  animation: none !important;
+  box-shadow: none !important;
+}
+
+@media (orientation: landscape) and (min-width: 600px) {
+  .token-monitor-mobile .shell { padding: 8px 18px; gap: 7px; }
+  .token-monitor-mobile .titlebar { min-height: 38px; }
+  .token-monitor-mobile .total-panel { flex-shrink: 0; padding-top: 0; padding-bottom: 0; }
+  .token-monitor-mobile .total-number { font-size: clamp(28px, 4.6vw, 42px); }
+  .token-monitor-mobile .home-panel { grid-template-columns: minmax(0,1fr); gap: 14px; }
+  .token-monitor-mobile .home-module { align-self: start; }
+  .token-monitor-mobile .home-module-limits { grid-row: auto; }
+  .token-monitor-mobile .footer { min-height: 36px; }
+}
+@media (max-width: 540px) {
+  .token-monitor-mobile .dash-header { padding: 10px 12px; }
+  .token-monitor-mobile .dash-pane { padding: 12px; }
+  .token-monitor-mobile .dash-controls { gap: 10px; }
+  .token-monitor-mobile .dash-breakdown { flex-direction: column; gap: 18px; }
+  .token-monitor-mobile .dash-heatmap-block { min-width: 0; }
+}
+/* Preserve hidden-panel semantics at the higher mobile selector specificity. */
+.token-monitor-mobile .settings-panel.hidden { display:none !important; max-height:0 !important; }
+/* Avoid depending on grid-track animation to show or hide settings on WebView. */
+.token-monitor-mobile .settings-panel .accordion-animated-container { transition: none; }
+.token-monitor-mobile .settings-panel .accordion-animated-container.hidden { display: none !important; }
+@supports not selector(:popover-open) {
+  .token-monitor-mobile [popover],
+  .token-monitor-mobile [popovertarget] { display: none !important; }
+}
+.token-monitor-mobile .title-controls {
+  flex: 0 1 168px;
+  width: 168px;
+  min-width: 0;
+  height: 44px;
+}
+.token-monitor-mobile .title-controls .tabs {
+  box-sizing: border-box;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+/* Keep the highlight on the button so it follows the actual touch bounds. */
+.token-monitor-mobile .tabs .tab-indicator { display: none; }
+.token-monitor-mobile .tabs .tab {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 2px;
+  font-size: clamp(10px, 0.6875rem, 14px);
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.token-monitor-mobile .tabs .tab.active {
+  border-color: rgba(var(--line-rgb), 0.13);
+  background: rgba(var(--overlay-rgb), 0.09);
+}
+.token-monitor-mobile .title-controls :is(.tab, .period-menu button) {
+  -webkit-tap-highlight-color: transparent;
+}
+.token-monitor-mobile .title-controls :is(.tab, .period-menu button):focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -2px;
+}
+.token-monitor-mobile .title-controls .period-menu {
+  box-sizing: border-box;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  width: 100%;
+  transform-origin: center top;
+}
+@media (orientation:landscape) and (min-width:600px) {
+  .token-monitor-mobile .shell.home-mode:not(.settings-open) {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .token-monitor-mobile .shell.home-mode:not(.settings-open) > .total-panel {
+    width: 100%; padding-top: 4px; padding-bottom: 4px;
+  }
+  .token-monitor-mobile .shell.home-mode:not(.settings-open) > .home-panel {
+    width: 100%; flex: 1 1 0; min-height: 0;
+    grid-template-columns: minmax(0,1fr); overflow-y: auto;
+  }
+  .token-monitor-mobile .total-number { font-size: 34px; }
+  .token-monitor-mobile .home-module { padding-bottom: 8px; gap: 5px; grid-column: 1; grid-row: auto; }
+}
+
+/* Settings occupies the mobile screen; its rows use the desktop stylesheet. */
+.token-monitor-mobile .shell.settings-open {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 14px;
+}
+.token-monitor-mobile .shell.settings-open > :not(.settings-panel) {
+  display: none !important;
+}
+.token-monitor-mobile .shell.settings-open > .settings-panel {
+  flex: 1 1 0;
+  align-content: start;
+  min-height: 0;
+  max-height: none;
+  overscroll-behavior: contain;
+}
+.token-monitor-mobile .settings-panel > .settings-notifications-group { border-radius: 0 0 12px 12px; }
+.token-monitor-mobile #generalSettingsSummary,
+.token-monitor-mobile .settings-section-summary:empty { display: none; }
+.token-monitor-mobile .select-control-popup { z-index: 100; }
+.token-monitor-mobile .sync-mode-select.select-control-enhanced > .settings-section-disclosure { display: none; }
+
+@supports not (color: color-mix(in srgb, white, black)) {
+  .token-monitor-mobile { --readable-muted: var(--muted); }
+}
+@supports not selector(:has(*)) {
+  .token-monitor-mobile .settings-panel .inline-option.is-checked { background: rgba(var(--overlay-rgb), 0.12); color: var(--text); }
+  .token-monitor-mobile .settings-panel .inline-option:focus-within { outline: 1px solid rgba(var(--accent-rgb), 0.72); }
+}
+
+/* Touch has no hover: reserve independent, stable cells for both actions. */
+.token-monitor-mobile .footer { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 44px; }
+.token-monitor-mobile .view-switcher-current,
+.token-monitor-mobile .view-switcher-disclosure { height: 40px; min-height: 40px; }
+.token-monitor-mobile .footer-update-actions { margin-left: auto; flex: 0 0 auto; gap: 0; }
+.token-monitor-mobile .footer-update-actions::before { display: none !important; }
+.token-monitor-mobile #utilityActions {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+  height: 40px !important;
+  flex: 0 0 auto !important;
+}
+.token-monitor-mobile #utilityActions > button {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0;
+  clip-path: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  transition: background 120ms ease, color 120ms ease !important;
+}
+.token-monitor-mobile #utilityActions > #refreshButton { order: 0; }
+.token-monitor-mobile #utilityActions > #settingsButton { order: 1; }
+.token-monitor-mobile .footer #viewSwitcher { min-width: 0; max-width: min(150px,calc(100% - 96px)); }
+.token-monitor-mobile .footer #liveTokenRate { min-width: 0; flex: 0 1 auto; }
+
+/* Desktop surfaces and OS maintenance have no mobile counterpart. */
+.token-monitor-mobile .mobile-desktop-only,
+.token-monitor-mobile .settings-window-section-group,
+.token-monitor-mobile .settings-plugins-group,
+.token-monitor-mobile #startupGroup,
+.token-monitor-mobile .app-update-settings,
+.token-monitor-mobile #appUpdatePill,
+.token-monitor-mobile #appUpdatePopover,
+.token-monitor-mobile #tokscaleGroup,
+.token-monitor-mobile .advanced-config-row,
+.token-monitor-mobile .settings-export-block,
+.token-monitor-mobile #windowsBackdropRow,
+.token-monitor-mobile #macBackdropRow,
+.token-monitor-mobile #glassOpacityRow,
+.token-monitor-mobile #macGlassTintRow,
+.token-monitor-mobile #macClearGlassTintRow,
+.token-monitor-mobile .background-image-setting,
+.token-monitor-mobile #backgroundImageOpacityRow { display: none !important; }
+
+.token-monitor-mobile .view-switcher-menu { background: rgb(var(--glass-rgb)); }
+.token-monitor-mobile #syncPanelUpload,
+.token-monitor-mobile #syncDeviceSettings > label { display: none !important; }
+
+.token-monitor-mobile .settings-section-icon-computer { --settings-section-icon-url: url("icons/views/device.svg"); }
+.token-monitor-mobile .settings-section-icon-notifications { --settings-section-icon-url: url("icons/settings/notifications.svg"); }
+.token-monitor-mobile .settings-tools-group,
+.token-monitor-mobile .settings-limits-group { display:none !important; }
+.token-monitor-mobile #computerNetworkFields[hidden],
+.token-monitor-mobile #computerBluetoothFields[hidden] { display:none; }

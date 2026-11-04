@@ -1,0 +1,26 @@
+# Build output and local tools
+.gradle/
+.idea/
+build/
+local.properties
+*.iml
+*.apk
+*.aab
+__pycache__/
+*.py[cod]
+.venv/
+
+# Machine-specific configuration and credentials
+.env
+.env.*
+config.private.json
+credentials.json
+settings.json
+pairing.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.log
+*.pid
