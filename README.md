@@ -16,7 +16,7 @@ For a direct connection, open **Settings → Connect to Computer** and use the c
 | --- | --- |
 | Wi-Fi | Connect both devices to the same network. Enter the PC's IPv4 address and port `47823`. |
 | Bluetooth | Pair the phone and PC in system settings, then select the PC in the app. |
-| USB | Install [Android SDK Platform-Tools][platform-tools], authorize USB debugging, then run `desktop\Setup-USB.cmd` and select **USB** in the app. |
+| USB | Install [Android SDK Platform-Tools][platform-tools] and authorize USB debugging. Run [`windows/Setup-USB.cmd`](windows/Setup-USB.cmd) from this repository or `desktop\Setup-USB.cmd` from the released ZIP, then select **USB** in the app. |
 | Remote Tunnel | Forward a trusted HTTPS endpoint to `http://127.0.0.1:47823` on the PC. Enter the public address and port in the app. |
 
 ## Repository layout
@@ -24,8 +24,8 @@ For a direct connection, open **Settings → Connect to Computer** and use the c
 | Path | Contents |
 | --- | --- |
 | [`android/`](android/) | Android app and Gradle build |
-| [`desktop/`](desktop/) | Windows companion and connection scripts |
-| [`notifications-desktop/`](notifications-desktop/) | Optional Codex notification relay. Run `python notifications-desktop/configure.py --help` for setup options. |
+| [`windows/`](windows/) | Windows companion and connection scripts |
+| [`windows/notifications/`](windows/notifications/) | Optional Codex notification relay. Run `python windows/notifications/configure.py --help` for setup options. |
 
 ## Build from source
 

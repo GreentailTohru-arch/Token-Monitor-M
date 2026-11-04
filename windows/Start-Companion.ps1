@@ -38,7 +38,7 @@ if (-not $EngineReady) {
 }
 Write-Host 'Token Monitor 0.85.0 companion engine ready.'
 if (Test-Path -LiteralPath "$env:USERPROFILE\TokenMonitorNotifications\config.private.json") {
-    & "$PSScriptRoot\..\notifications-desktop\manage.ps1" start
+    & "$PSScriptRoot\notifications\manage.ps1" start
 }
 $BridgeReady = $false
 try {
