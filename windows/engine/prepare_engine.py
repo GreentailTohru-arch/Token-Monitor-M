@@ -44,7 +44,7 @@ def main():
     local = Path(os.environ["LOCALAPPDATA"])
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--installed", type=Path, default=local / "Programs/Token Monitor")
-    parser.add_argument("--runtime", type=Path, default=local / "TokenMonitorMobile/runtime-0.85.0")
+    parser.add_argument("--runtime", type=Path, default=local / "TokenMonitorMobile/runtime-0.87.0")
     parser.add_argument("--profile", type=Path, default=local / "TokenMonitorMobile/profile-0.85.0")
     args = parser.parse_args()
     if args.runtime.resolve() == args.installed.resolve():
@@ -66,8 +66,8 @@ def main():
         extract_asar(args.installed / "resources/app.asar", args.runtime / "resources/app")
     app_dir = args.runtime / "resources/app"
     package = json.loads((app_dir / "package.json").read_text("utf-8"))
-    if package.get("version") != "0.85.0":
-        raise RuntimeError("This mobile renderer is pinned to Token Monitor 0.85.0. Update the mobile bundle before using a different engine version.")
+    if package.get("version") != "0.87.0":
+        raise RuntimeError("This mobile renderer is pinned to Token Monitor 0.87.0. Update the mobile bundle before using a different engine version.")
     package["main"] = "mobile-main.js"
     (app_dir / "package.json").write_text(json.dumps(package, indent=2), "utf-8")
     shutil.copy2(Path(__file__).with_name("mobile-main.js"), app_dir / "mobile-main.js")

@@ -15,7 +15,7 @@ class PreparedRuntimeTest(unittest.TestCase):
             runtime = root / 'runtime'
             app = runtime / 'resources/app'
             app.mkdir(parents=True)
-            (app / 'package.json').write_text(json.dumps({'version': '0.85.0'}))
+            (app / 'package.json').write_text(json.dumps({'version': '0.87.0'}))
             marker = runtime / 'mobile-engine-version.json'
             marker.write_text(json.dumps({'sourceAsarSha256': 'original-hash'}))
             profile = root / 'profile'

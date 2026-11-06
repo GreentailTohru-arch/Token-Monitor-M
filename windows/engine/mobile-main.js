@@ -40,6 +40,7 @@ const desktopOnly = new Set(['appUpdate:download', 'appUpdate:install']);
 let cursor = 0;
 let events = [];
 let lastMainContents;
+let rpcWindow;
 
 function sanitize(value, depth = 0) {
   if (depth > 35) return null;
@@ -73,9 +74,14 @@ app.on('web-contents-created', (_event, contents) => {
 
 function sender() {
   const candidates = BrowserWindow.getAllWindows().filter(w => !w.isDestroyed());
-  const main = candidates.find(w => /(?:\/|\\)renderer(?:\/|\\)index\.html/.test(w.webContents.getURL()))
+  let main = candidates.find(w => /(?:\/|\\)renderer(?:\/|\\)index\.html/.test(w.webContents.getURL()))
     || candidates.find(w => /index\.html/.test(w.webContents.getURL())) || candidates[0];
-  if (!main) throw new Error('engine_starting');
+  // Tray mode can destroy the desktop window while collection keeps running.
+  // IPC handlers still need a real sender for authenticated mobile requests.
+  if (!main) {
+    rpcWindow = new BrowserWindow({ show: false, webPreferences: { sandbox: true } });
+    main = rpcWindow;
+  }
   lastMainContents = main.webContents;
   return { sender: main.webContents, senderFrame: main.webContents.mainFrame,
            reply: (channel, ...args) => main.webContents.send(channel, ...args) };

@@ -299,11 +299,22 @@ const VIEW_ICON_CLASSES = {
   limits: 'view-icon-limits',
   trends: 'view-icon-trends'
 };
+// Mirrors SERVICE_STATUS_PROVIDERS in src/electron/serviceStatus.js — same ids,
+// labels and order — so the rows and the settings list render before the first
+// fetch. The two lists must stay in sync.
 const SERVICE_STATUS_PLACEHOLDERS = [
   { id: 'claude', label: 'Claude', pageUrl: 'https://status.claude.com' },
   { id: 'openai', label: 'OpenAI', pageUrl: 'https://status.openai.com' },
+  { id: 'opencode', label: 'OpenCode', pageUrl: 'https://status.opencode.ai' },
   { id: 'cursor', label: 'Cursor', pageUrl: 'https://status.cursor.com' },
-  { id: 'deepseek', label: 'DeepSeek', pageUrl: 'https://status.deepseek.com' }
+  { id: 'factory', label: 'Factory Droid', pageUrl: 'https://status.factory.ai' },
+  { id: 'kimi', label: 'Kimi', pageUrl: 'https://status.moonshot.cn' },
+  { id: 'github', label: 'Copilot', pageUrl: 'https://www.githubstatus.com' },
+  { id: 'zed', label: 'Zed', pageUrl: 'https://status.zed.dev' },
+  { id: 'deepseek', label: 'DeepSeek', pageUrl: 'https://status.deepseek.com' },
+  { id: 'devin', label: 'Devin', pageUrl: 'https://www.devinstatus.com' },
+  { id: 'minimax', label: 'MiniMax (China)', pageUrl: 'https://status.minimaxi.com' },
+  { id: 'minimax-intl', label: 'MiniMax (International)', pageUrl: 'https://status.minimax.io' }
 ];
 const SERVICE_PROVIDER_OPTIONS = SERVICE_STATUS_PLACEHOLDERS.map((entry) => ({ id: entry.id, label: entry.label }));
 const TOKEN_MONITOR_REPOSITORY_URL = 'https://github.com/Javis603/token-monitor';
@@ -4659,8 +4670,33 @@ const { limitWindowText } = window.TokenMonitorLimitWindowText;
 // so its card is the same DOM rather than a second rendering of the same data.
 // Everything the builder needs from this page is handed over here; it reads no
 // globals of its own.
+let limitsHistoryOpen = false;
+let limitsHistoryActiveKey = '';
+document.addEventListener('pointerdown', event => {
+  if (limitsHistoryOpen && !event.target.closest('[data-limit-history]')) window.tokenMonitor.limits.closeHistory();
+}, true);
+window.tokenMonitor?.limits?.onHistoryState?.((open, key) => {
+  limitsHistoryOpen = open === true;
+  limitsHistoryActiveKey = limitsHistoryOpen ? key : '';
+  for (const row of document.querySelectorAll('[data-limit-history]')) {
+    row.classList.toggle('is-history-active', row.dataset.limitHistory === limitsHistoryActiveKey);
+  }
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || !limitsHistoryOpen) return;
+  event.preventDefault();
+  window.tokenMonitor.limits.closeHistory();
+}, true);
+
 const limitWindowsView = window.TokenMonitorLimitWindowsView.createLimitWindowsView({
   document,
+  history: window.tokenMonitor?.limits?.openHistory ? {
+    key: window.TokenMonitorLimitsHistoryIdentity.historyRowKey,
+    activeKey: () => limitsHistoryActiveKey,
+    open: (key, rect, interactive) => window.tokenMonitor.limits.openHistory(key, rect, interactive),
+    enter: key => window.tokenMonitor.limits.enterHistory(key),
+    leave: key => window.tokenMonitor.limits.leaveHistory(key)
+  } : null,
   t,
   settings: () => state.settings,
   currentLocale,
@@ -4994,6 +5030,7 @@ function renderLimits() {
     settings: [
       state.settings?.showLimitSource === true,
       state.settings?.maskLimitAccountEmails === true,
+      state.settings?.limitsHistoryOpenMode,
       state.settings?.showLimitUsed === true,
       state.settings?.showToolIcons !== false,
       state.settings?.claudePrepaidBalanceEnabled !== false,
@@ -5090,31 +5127,35 @@ function visibleServiceProviderIds() {
 function serviceStatusRows() {
   const order = visibleServiceProviderIds();
   const rank = new Map(order.map((id, index) => [id, index]));
-  const base = (state.serviceStatus?.providers?.length)
-    ? state.serviceStatus.providers
-    : SERVICE_STATUS_PLACEHOLDERS.map((provider) => ({
-        ...provider,
-        status: 'unknown',
-        description: state.serviceStatusBusy ? t('serviceStatus.loading') : t('serviceStatus.notChecked'),
-        checkedAt: '',
-        updatedAt: '',
-        componentIssues: [],
-        incidentCount: 0,
-        maintenanceCount: 0
-      }));
+  const checked = new Map((state.serviceStatus?.providers || []).map((provider) => [provider.id, provider]));
+  const base = SERVICE_STATUS_PLACEHOLDERS.map((provider) => checked.get(provider.id) || ({
+    ...provider,
+    status: 'unknown',
+    description: state.serviceStatusBusy ? t('serviceStatus.loading') : t('serviceStatus.notChecked'),
+    checkedAt: '',
+    updatedAt: '',
+    componentIssues: [],
+    incidentCount: 0,
+    maintenanceCount: 0
+  }));
   return base
     .filter((provider) => rank.has(provider.id))
     .sort((a, b) => rank.get(a.id) - rank.get(b.id));
 }
 
+// Status ids whose vendor mark lives under a different name; every other id
+// has a `.row-icon-<id>` mask installed from the vendor table.
+const SERVICE_STATUS_ICON_ALIASES = new Map([['openai', 'codex'], ['github', 'copilot'], ['minimax-intl', 'minimax']]);
+
 function serviceStatusIconId(id) {
-  return id === 'openai' ? 'codex' : id; // claude/cursor/deepseek map 1:1
+  return SERVICE_STATUS_ICON_ALIASES.get(id) || id;
 }
 
 function renderServiceStatus() {
   if (!serviceStatusSurfaceVisible()) return;
   if (!els.serviceStatusPanel) return;
-  const rows = serviceStatusRows().map((provider) => {
+  const rows = serviceStatusRows().map((source) => {
+    const provider = serviceStatusPresentationApi.localizeProvider(source, currentLocale());
     const row = document.createElement('button');
     row.type = 'button';
     row.className = `service-status-row service-status-${provider.status || 'unknown'}`;
@@ -5171,15 +5212,16 @@ function renderServiceStatus() {
 
 async function refreshServiceStatus(options = {}) {
   if (!window.tokenMonitor.getServiceStatus || state.serviceStatusBusy) return;
+  const providerIds = visibleServiceProviderIds();
   state.serviceStatusBusy = true;
   renderServiceStatus();
   try {
-    state.serviceStatus = await window.tokenMonitor.getServiceStatus({ force: options.force === true, providerIds: visibleServiceProviderIds() });
+    state.serviceStatus = await window.tokenMonitor.getServiceStatus({ force: options.force === true, providerIds });
   } catch (error) {
     const checkedAt = new Date().toISOString();
     state.serviceStatus = {
       checkedAt,
-      providers: SERVICE_STATUS_PLACEHOLDERS.map((provider) => ({
+      providers: SERVICE_STATUS_PLACEHOLDERS.filter((provider) => providerIds.includes(provider.id)).map((provider) => ({
         ...provider,
         status: 'unknown',
         indicator: 'unknown',
@@ -5195,6 +5237,9 @@ async function refreshServiceStatus(options = {}) {
   } finally {
     state.serviceStatusBusy = false;
     renderServiceStatus();
+    if (visibleServiceProviderIds().some((id) => !providerIds.includes(id))) {
+      await refreshServiceStatus({ force: true });
+    }
   }
 }
 
@@ -5943,6 +5988,10 @@ function viewLabelById(id) {
 
 function isSettingsPanelOpen() {
   return Boolean(els.settingsPanel && !els.settingsPanel.classList.contains('hidden'));
+}
+
+function isNativeWindowTransfer() {
+  return globalThis[Symbol.for('token-monitor.window-view-state')]?.transferring === true;
 }
 
 function isRendererWindowHidden() {
@@ -8182,7 +8231,7 @@ function applyAppearanceSettings(settings) {
   }
   if (els.windowsBackdropNote) {
     const accentFallback = windowsGlass.showAccentNote
-      && new URLSearchParams(window.location.search).get('windowsBackdropFallback') === '1';
+      && (settings?.windowsBackdropFallback ?? state.settings?.windowsBackdropFallback) === true;
     els.windowsBackdropNote.textContent = t(accentFallback
       ? 'settings.appearance.windowsBackdropFallback'
       : 'settings.appearance.windowsBackdropNote');
@@ -8735,7 +8784,7 @@ function applyFloatingBubbleState(payload = {}, options = {}) {
   }
   if (options.renderContent === false) return;
   if (wasCollapsed && !state.floatingBubble.collapsed) {
-    if (isSettingsPanelOpen()) syncSettingsForm();
+    if (isSettingsPanelOpen() && !isNativeWindowTransfer()) syncSettingsForm();
     renderStatsUpdate();
   } else {
     renderFloatingBubbleContent();
@@ -10162,7 +10211,7 @@ function applyPreferenceOrder(kind, order) {
     if (!row) continue;
     list.appendChild(row);
     const companionId = kind === 'view'
-      ? ({ home: 'homeSettingsContainer', trends: 'trendSettingsContainer', project: 'projectSettingsContainer', session: 'sessionSettingsContainer', status: 'serviceProvidersContainer' })[id]
+      ? ({ home: 'homeSettingsContainer', limits: 'limitsViewSettingsContainer', trends: 'trendSettingsContainer', project: 'projectSettingsContainer', session: 'sessionSettingsContainer', status: 'serviceProvidersContainer' })[id]
       : kind === 'homeModule'
         ? HOME_MODULE_SUBGROUPS[id]?.[1]
         : '';
@@ -10194,6 +10243,7 @@ function createPreferenceOrderHandle({ kind, id, label, count }) {
 }
 
 const VIEW_PREFERENCE_SUBGROUPS = {
+  limits: ['limitsViewSettingsExpanded', 'limitsViewSettingsContainer'],
   home: ['homeSettingsExpanded', 'homeSettingsContainer'],
   trends: ['trendSettingsExpanded', 'trendSettingsContainer'],
   project: ['projectSettingsExpanded', 'projectSettingsContainer'],
@@ -10400,6 +10450,29 @@ function renderViewPreferences() {
     row.append(name, actions);
     row.addEventListener('pointerdown', (event) => viewPreferenceRowDrag.startRowDrag(event, id));
     els.viewDisplayList.appendChild(row);
+    if (id === 'limits') {
+      row.classList.add('has-subgroup');
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = `view-subgroup-toggle${state.limitsViewSettingsExpanded ? ' is-expanded' : ''}`;
+      toggle.setAttribute('aria-label', t('settings.views.configureLimits', { name: label }));
+      toggle.setAttribute('aria-expanded', String(Boolean(state.limitsViewSettingsExpanded)));
+      const toggleIcon = document.createElement('span');
+      toggleIcon.className = 'view-subgroup-icon';
+      toggleIcon.setAttribute('aria-hidden', 'true');
+      toggle.append(toggleIcon);
+      toggle.addEventListener('click', () => togglePreferenceSubgroup(VIEW_PREFERENCE_SUBGROUPS, '.view-preference-row', id));
+      actions.insertBefore(toggle, visibility);
+
+      const listContainer = document.createElement('div');
+      listContainer.id = 'limitsViewSettingsContainer';
+      listContainer.className = `accordion-animated-container${state.limitsViewSettingsExpanded ? '' : ' hidden'}`;
+      const inner = document.createElement('div');
+      inner.className = 'accordion-animation-inner';
+      inner.appendChild(renderLimitsViewSettingsList());
+      listContainer.appendChild(inner);
+      els.viewDisplayList.appendChild(listContainer);
+    }
     if (id === 'home') {
       row.classList.add('has-subgroup');
       const toggle = document.createElement('button');
@@ -10853,6 +10926,35 @@ function renderHomeActivitySettings() {
   frag.append(daysRow);
 
   return frag;
+}
+
+function renderLimitsViewSettingsList() {
+  const wrap = document.createElement('div');
+  wrap.className = 'settings-nested-list';
+  const row = document.createElement('label');
+  row.className = 'settings-item';
+  const text = document.createElement('span');
+  text.className = 'settings-item-text';
+  const title = document.createElement('span');
+  title.className = 'settings-item-title';
+  title.textContent = t('limits.history.openMode');
+  text.appendChild(title);
+  const input = document.createElement('select');
+  input.id = 'limitsHistoryOpenModeInput';
+  for (const [value, key] of [['hover', 'openModeHover'], ['click', 'openModeClick'], ['off', 'openModeOff']]) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = t(`limits.history.${key}`);
+    input.appendChild(option);
+  }
+  input.value = state.settings?.limitsHistoryOpenMode || 'hover';
+  input.addEventListener('change', async () => {
+    await saveSettings({ limitsHistoryOpenMode: input.value });
+    renderLimits();
+  });
+  row.append(text, input);
+  wrap.appendChild(row);
+  return wrap;
 }
 
 function renderTrendSettingsList() {
@@ -12591,6 +12693,11 @@ const LIMIT_PROVIDER_SETTINGS = {
     descKey: 'settings.limits.prepaidBalanceDesc',
     requiresConfiguredKey: 'claudeWebCookieConfigured',
     defaultValue: true
+  }, {
+    key: 'claudeCliFallbackEnabled',
+    titleKey: 'settings.limits.claudeCliFallback',
+    descKey: 'settings.limits.claudeCliFallbackDesc',
+    defaultValue: true
   }],
   codex: [{
     key: 'codexResetForecastEnabled',
@@ -12981,9 +13088,11 @@ function hiddenServiceProviderSet() {
 
 async function onServiceProviderVisibilityToggle(providerId) {
   const hidden = hiddenServiceProviderSet();
-  if (hidden.has(providerId)) hidden.delete(providerId);
+  const showing = hidden.has(providerId);
+  if (showing) hidden.delete(providerId);
   else hidden.add(providerId);
   await saveSettings({ hiddenServiceProviders: Array.from(hidden).join(',') });
+  if (showing) await refreshServiceStatus({ force: true });
 }
 
 async function onServiceProviderMove(providerId, direction) {
@@ -13035,7 +13144,9 @@ async function resetServiceProviderOrder() {
 }
 
 async function showAllServiceProviders() {
+  const showing = hiddenServiceProviderSet().size > 0;
   await saveSettings({ hiddenServiceProviders: '' });
+  if (showing) await refreshServiceStatus({ force: true });
 }
 
 async function onPreferenceReorder(kind, id, targetIndex) {
@@ -14796,7 +14907,7 @@ function handleWindowVisibilityChange() {
     void refreshHubBuildStatus();
   }
   const settingsVisible = isSettingsSurfaceVisible();
-  if (settingsVisible || settingsDomSyncPending) syncSettingsForm();
+  if (settingsDomSyncPending || (settingsVisible && !isNativeWindowTransfer())) syncSettingsForm();
   statsRenderScheduler.flush();
   if (settingsVisible) {
     renderConnectionStatus();

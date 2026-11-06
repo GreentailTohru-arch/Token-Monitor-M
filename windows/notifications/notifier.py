@@ -317,7 +317,7 @@ def make_handler(events, key):
                     result['events'] = [event for event in result['events'] if event.get('kind', 'complete') == 'complete']
                 self.respond(200, result)
             elif url.path == '/v1/health':
-                self.respond(200, {'ok': True, 'component': 'codex-notifications', 'version': '0.0.2'})
+                self.respond(200, {'ok': True, 'component': 'codex-notifications', 'version': '0.0.3'})
             else:
                 self.respond(404, {'error': 'not_found'})
 

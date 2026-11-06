@@ -119,7 +119,7 @@
         await refreshSubscriptions();return projectedSettings();
       }
       case 'devices:delete':if(!connectionState.connected)throw new Error('当前离线，无法删除 Hub 设备');await request('DELETE','/api/devices/'+encodeURIComponent(args[0]));return {ok:true};
-      case 'app:getInfo':return {version:'0.0.2',platform:'android',systemDarkUi:true,loginItemSupported:false};
+      case 'app:getInfo':return {version:'0.0.3',platform:'android',systemDarkUi:true,loginItemSupported:false};
       case 'appUpdate:getState':return {status:'idle',supported:false};
       case 'syncContent:status':return {supported:false,enabled:{}};
       case 'codexResetForecast:get':return computerActive()?computerRequest(channel).catch(()=>({status:'disabled'})):{status:'disabled'};

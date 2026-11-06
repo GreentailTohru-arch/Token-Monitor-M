@@ -1,5 +1,7 @@
-/* Display defaults from upstream 0.85.0; no user settings. */
+/* Display defaults from upstream 0.87.0; no user settings. */
 window.MobileDefaults = {
+  "limitsHistoryOpenMode": "hover",
+  "claudeCliFallbackEnabled": true,
   "deviceIconOverrides": {},
   "hubMode": "local",
   "hubUrl": "",
