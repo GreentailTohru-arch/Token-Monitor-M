@@ -9,8 +9,8 @@
 
 <p align="center">
     <a href="https://github.com/GreentailTohru-arch/token-monitor-android/releases/latest"><img src="https://img.shields.io/github/v/release/GreentailTohru-arch/token-monitor-android?style=flat-square&amp;label=Release&amp;logo=github&amp;logoColor=white&amp;color=9a431c" alt="Latest release"></a>
-    <a href="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/windows-x64.svg"><img src="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/windows-x64.svg" alt="Windows x64 bridge"></a>
-    <a href="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/android.svg"><img src="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/android.svg" alt="Android 8.0 or later"></a>
+    <a href="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/windows-x64.svg"><img src="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/windows-x64.svg" alt="Windows 10+"></a>
+    <a href="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/android.svg"><img src="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/android.svg" alt="Android 8.0+"></a>
     <a href="LICENSE"><img src="https://raw.githubusercontent.com/GreentailTohru-arch/token-monitor-android/main/assets/badges/license.svg" alt="MIT license"></a>
 </p>
 
