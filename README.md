@@ -8,9 +8,10 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/GreentailTohru-arch/token-monitor-android/releases/latest"><img src="https://img.shields.io/github/v/release/GreentailTohru-arch/token-monitor-android?style=flat-square" alt="Latest release"></a>
-    <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=flat-square" alt="Android 8.0 or later">
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-A855F7?style=flat-square" alt="MIT license"></a>
+    <a href="https://github.com/GreentailTohru-arch/token-monitor-android/releases/latest"><img src="https://img.shields.io/github/v/release/GreentailTohru-arch/token-monitor-android?style=flat-square&amp;label=Release&amp;logo=github&amp;logoColor=white&amp;color=9a431c" alt="Latest release"></a>
+    <a href="https://github.com/GreentailTohru-arch/token-monitor-android/releases/latest/download/token-monitor-android-windows.zip"><img src="assets/badges/windows-x64.svg" alt="Windows x64 bridge"></a>
+    <a href="https://github.com/GreentailTohru-arch/token-monitor-android/releases/latest/download/token-monitor-android.apk"><img src="assets/badges/android.svg" alt="Android 8.0 or later"></a>
+    <a href="LICENSE"><img src="assets/badges/license.svg" alt="MIT license"></a>
 </p>
 
 ## What is Token Monitor for Android?
